@@ -2,7 +2,7 @@ use actix_web::{Responder, HttpResponse, App, web, HttpServer};
 
 
 async fn health_handler() -> impl Responder {
-    println!("Health handler execute sucessfuly");
+    println!("Health handler executed sucessfully");
     HttpResponse::Ok().body("{\"status\": \"pass\"}")
 }
 
