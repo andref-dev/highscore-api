@@ -2,11 +2,12 @@ use actix_web::{Responder, HttpResponse, App, web, HttpServer};
 
 
 async fn health_handler() -> impl Responder {
-    println!("Health handler executed sucessfully");
+    println!("Health handler executed successfully");
     HttpResponse::Ok().body("{\"status\": \"pass\"}")
 }
 
 async fn echo_handler(req_body: String) -> impl Responder {
+    println!("Echo handler executed successfully");
     HttpResponse::Ok().body(req_body)
 }
 
