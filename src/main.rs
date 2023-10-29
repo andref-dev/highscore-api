@@ -2,14 +2,23 @@ use actix_web::{Responder, HttpResponse, App, web, HttpServer};
 use env_logger::Env;
 use log::{info, debug, warn};
 use config::ReleaseMode;
+use serde::Serialize;
 
 use crate::config::Config;
 
 mod config;
 
+#[derive(Serialize)]
+struct HealthResponse {
+    status: String,
+}
+
 async fn health_handler() -> impl Responder {
     info!("Health handler executed successfully");
-    HttpResponse::Ok().body("{\"status\": \"pass\"}")
+    let response = HealthResponse {
+        status: String::from("pass")
+    };
+    web::Json(response)
 }
 
 async fn echo_handler(req_body: String) -> impl Responder {
