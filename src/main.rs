@@ -1,12 +1,14 @@
 use actix_web::{Responder, HttpResponse, App, web, HttpServer};
 use env_logger::Env;
-use log::{info, debug, warn};
+use log::info;
 use config::ReleaseMode;
 use serde::Serialize;
 
 use crate::config::Config;
 
-mod config;
+pub mod config;
+pub mod error;
+mod storage;
 
 #[derive(Serialize)]
 struct HealthResponse {
@@ -40,12 +42,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env);
     
     let startup_message = format!("Server is running on http://localhost:{}", config.api_port);
-    
-    match default_level {
-        "debug" => debug!("{}", startup_message),
-        "info" => info!("{}", startup_message),
-        _ => warn!("Not covered.")
-    };
+    info!("{}", startup_message);
 
     HttpServer::new(|| {
         App::new()
