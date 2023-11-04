@@ -7,6 +7,8 @@ use mongodb::{
 };
 use uuid::Uuid;
 
+use crate::config::Config;
+
 use crate::error::AppError;
 
 use super::gamedev::GameDev;
@@ -20,7 +22,8 @@ pub struct Storage {
 
 impl Storage {
     pub async fn new() -> Result<Self, AppError> {
-        let mut client_options = ClientOptions::parse("mongodb://localhost:27017").await?;
+        let config = Config::new();
+        let mut client_options = ClientOptions::parse(config.mongo_uri).await?;
         client_options.app_name = Some("Highscore API".to_string());
         let client = Client::with_options(client_options)?;
         let db = client.database("highscore-api");
