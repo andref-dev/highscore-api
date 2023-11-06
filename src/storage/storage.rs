@@ -6,8 +6,8 @@ use mongodb::{
     Collection
 };
 use uuid::Uuid;
-
-use crate::config::Config;
+use std::env;
+use dotenv::dotenv;
 
 use crate::error::AppError;
 
@@ -22,8 +22,9 @@ pub struct Storage {
 
 impl Storage {
     pub async fn new() -> Result<Self, AppError> {
-        let config = Config::new();
-        let mut client_options = ClientOptions::parse(config.mongo_uri).await?;
+        dotenv().ok();
+        let mongo_uri = env::var("MONGO_URI").expect("MONGO_URI is not configured.");
+        let mut client_options = ClientOptions::parse(mongo_uri).await?;
         client_options.app_name = Some("Highscore API".to_string());
         let client = Client::with_options(client_options)?;
         let db = client.database("highscore-api");
