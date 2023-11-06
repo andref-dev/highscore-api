@@ -16,7 +16,8 @@ fn default_api_port() -> u16 {
 pub struct Config {
     pub release_mode: ReleaseMode,
     #[serde(default = "default_api_port")]
-    pub api_port: u16
+    pub api_port: u16,
+    pub mongo_uri: String
 }
 
 
