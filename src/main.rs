@@ -34,15 +34,6 @@ async fn main() -> std::io::Result<()> {
 
     let config = Config::new();
 
-    let storage = Storage::new().await.unwrap();
-
-    let dev = String::from("Nintendo");
-
-    match storage.create_gamedev(dev).await {
-        Ok(new_gamedev) => println!("{:?}", new_gamedev),
-        Err(err) => println!("{:?}", err)
-    };
-
     let default_level = match config.release_mode {
         ReleaseMode::Dev => "debug",
         ReleaseMode::Prod => "info"
