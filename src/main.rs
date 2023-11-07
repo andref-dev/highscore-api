@@ -1,32 +1,18 @@
-use actix_web::{Responder, HttpResponse, App, web, HttpServer};
+use actix_web::{App, web, HttpServer};
 use env_logger::Env;
 use log::info;
 use config::ReleaseMode;
 use serde::Serialize;
 
 use crate::config::Config;
+use crate::handlers::utils;
+use crate::utils::health_handler;
+use crate::utils::echo_handler;
 
 pub mod config;
 pub mod error;
+mod handlers;
 mod storage;
-
-#[derive(Serialize)]
-struct HealthResponse {
-    status: String,
-}
-
-async fn health_handler() -> impl Responder {
-    info!("Health handler executed successfully");
-    let response = HealthResponse {
-        status: String::from("pass")
-    };
-    web::Json(response)
-}
-
-async fn echo_handler(req_body: String) -> impl Responder {
-    info!("Echo handler executed successfully with data: {}", req_body);
-    HttpResponse::Ok().body(req_body)
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
