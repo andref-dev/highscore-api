@@ -6,8 +6,6 @@ use serde::Serialize;
 
 use crate::config::Config;
 use crate::handlers::utils;
-use crate::utils::health_handler;
-use crate::utils::echo_handler;
 
 pub mod config;
 pub mod error;
@@ -32,8 +30,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .route("/health", web::get().to(health_handler))
-            .route("/echo", web::post().to(echo_handler))
+            .route("/health", web::get().to(utils::health_handler))
+            .route("/echo", web::post().to(utils::echo_handler))
     })
     .bind(("127.0.0.1", config.api_port))?
     .run()
