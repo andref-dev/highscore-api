@@ -1,5 +1,6 @@
+use log::error;
 use mongodb::{
-    bson::{Binary, spec::BinarySubtype},
+    bson::{Binary, spec::BinarySubtype, doc},
     options::ClientOptions,
     Client,
     Database,
@@ -13,6 +14,7 @@ use super::gamedev::GameDev;
 
 #[derive(Debug, Clone)]
 pub struct Storage {
+    pub name: String,
     pub client: Client,
     pub db: Database,
     pub gamedev_collection: Collection<GameDev>
@@ -27,10 +29,21 @@ impl Storage {
         let gamedev_collection = db.collection::<GameDev>("gamedevs");
 
         Ok(Self {
+            name: "This is a test".to_string(),
             client,
             db,
             gamedev_collection
         })
+    }
+
+    pub async fn health_check(&self) -> bool {
+        match self.db.run_command(doc!{"ismaster": 1}, None).await {
+            Ok(_document) => return true,
+            Err(e) => {
+                error!("Error getting MongoDB health status: {}", e.to_string());
+                return false
+            }
+        }
     }
 
     pub fn uuid_to_binary(&self, id: Uuid) -> Binary {

@@ -14,7 +14,7 @@ pub struct GameDev {
 }
 
 impl Storage {
-    pub async fn create_gamedev(self, name: String) -> Result<GameDev, AppError> {
+    pub async fn create_gamedev(&self, name: String) -> Result<GameDev, AppError> {
         // Check if there's already a gamdev with this name
         match self.get_gamedev_by_name(name.clone()).await {
             Ok(_) => return Err(AppError::DuplicateEntryError),

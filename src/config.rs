@@ -12,11 +12,18 @@ fn default_api_port() -> u16 {
     4000
 }
 
+fn default_timeout() -> u64 {
+    75
+}
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub release_mode: ReleaseMode,
+    pub mongo_uri: String,
     #[serde(default = "default_api_port")]
-    pub api_port: u16
+    pub api_port: u16,
+    #[serde(default= "default_timeout")]
+    pub timeout: u64
 }
 
 
