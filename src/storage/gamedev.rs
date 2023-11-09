@@ -36,7 +36,6 @@ impl Storage {
     pub async fn get_gamedev_by_id(&self, id: Uuid) -> Result<GameDev, AppError> {
         
         let filter = doc! { "id": self.uuid_to_binary(id) };
-        // let filter = doc!{"id": id.to_string()};
         match self.gamedev_collection.find_one(filter, None).await? {
             Some(gamedev) => Ok(gamedev),
             None => Err(AppError::NotFound)
