@@ -11,7 +11,7 @@ struct HealthResponse {
     status: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct FullHealthResponse {
     status: String,
     db: bool
@@ -36,10 +36,14 @@ pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder 
         false => "fail"
     }.to_string();
 
-    web::Json(FullHealthResponse {
+    let response = FullHealthResponse {
         status,
         db: db_status
-    })
+    };
+
+    info!("Full health handler executed with response: {:?}", response);
+
+    web::Json(response)
 }
 
 // REFERENCE FOR FUTURE HANDLER IMPLEMENTATION
