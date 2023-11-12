@@ -7,6 +7,7 @@ use env_logger::Env;
 use log::info;
 use config::ReleaseMode;
 use web::Data;
+use std::env;
 
 use crate::app_data::AppData;
 use crate::config::Config;
@@ -15,11 +16,17 @@ use crate::handlers::utils;
 pub mod app_data;
 pub mod config;
 pub mod error;
+pub mod scripts;
 mod handlers;
 mod storage;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 2 && args[1] == "create-gamedev" {
+        scripts::create_gamedev::execute(args[2].clone()).await;
+        return Ok(())
+    }
 
     let config = Config::new();
 
