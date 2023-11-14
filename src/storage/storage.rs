@@ -7,6 +7,7 @@ use mongodb::{
     Collection
 };
 use uuid::Uuid;
+use log::debug;
 
 use crate::error::AppError;
 
@@ -22,7 +23,8 @@ pub struct Storage {
 
 impl Storage {
     pub async fn new(mongo_uri: String) -> Result<Self, AppError> {
-        let mut client_options = ClientOptions::parse(mongo_uri).await?;
+        let mut client_options = ClientOptions::parse(mongo_uri.clone()).await?;
+        debug!("Correctly connected to mongodb at uri: {}", mongo_uri);
         client_options.app_name = Some("Highscore API".to_string());
         let client = Client::with_options(client_options)?;
         let db = client.database("highscore-api");
