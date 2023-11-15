@@ -12,13 +12,15 @@ use log::debug;
 use crate::error::AppError;
 
 use super::gamedev::GameDev;
+use super::game::Game;
 
 #[derive(Debug, Clone)]
 pub struct Storage {
     pub name: String,
     pub client: Client,
     pub db: Database,
-    pub gamedev_collection: Collection<GameDev>
+    pub gamedev_collection: Collection<GameDev>,
+    pub game_collection: Collection<Game>
 }
 
 impl Storage {
@@ -29,12 +31,14 @@ impl Storage {
         let client = Client::with_options(client_options)?;
         let db = client.database("highscore-api");
         let gamedev_collection = db.collection::<GameDev>("gamedevs");
+        let game_collection = db.collection::<Game>("games");
 
         Ok(Self {
             name: "This is a test".to_string(),
             client,
             db,
-            gamedev_collection
+            gamedev_collection,
+            game_collection
         })
     }
 
