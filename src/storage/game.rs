@@ -14,6 +14,7 @@ pub struct Game {
     pub gamedev_id: Uuid
 }
 
+#[derive(Clone)]
 pub struct NewGame {
     pub name: String,
     pub gamedev_id: Uuid
@@ -22,7 +23,7 @@ pub struct NewGame {
 impl Storage {
     pub async fn create_game(&self, new_game: NewGame) -> Result<Game, AppError> {
         self.get_gamedev_by_id(new_game.gamedev_id).await?;
-        match self.get_game(new_game.name.clone(), new_game.gamedev_id.clone()).await {
+        match self.get_game_by_name(new_game.name.clone(), new_game.gamedev_id.clone()).await {
             Ok(_) => return Err(AppError::DuplicateEntryError),
             Err(_) => {}
         };
@@ -35,11 +36,19 @@ impl Storage {
 
         self.game_collection.insert_one(new_game.clone(), None).await?;
 
-        self.get_game(new_game.name, new_game.gamedev_id).await
+        self.get_game_by_name(new_game.name, new_game.gamedev_id).await
     }
 
-    pub async fn get_game(&self, name: String, gamedev_id: Uuid) -> Result<Game, AppError> {
+    pub async fn get_game_by_name(&self, name: String, gamedev_id: Uuid) -> Result<Game, AppError> {
         let filter = doc! { "name": name, "gamedev_id": self.uuid_to_binary(gamedev_id) };
+        match self.game_collection.find_one(filter, None).await? {
+            Some(game) => Ok(game),
+            None => Err(AppError::NotFound)
+        }
+    }
+
+    pub async fn get_game_by_id(&self, id: Uuid, gamedev_id: Uuid) -> Result<Game, AppError> {
+        let filter = doc! { "id": self.uuid_to_binary(id), "gamedev_id": self.uuid_to_binary(gamedev_id) };
         match self.game_collection.find_one(filter, None).await? {
             Some(game) => Ok(game),
             None => Err(AppError::NotFound)
