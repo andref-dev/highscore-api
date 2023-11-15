@@ -2,6 +2,7 @@ use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+use log::{error, debug, info};
 
 use crate::error::AppError;
 
@@ -24,7 +25,10 @@ impl Storage {
     pub async fn create_game(&self, new_game: NewGame) -> Result<Game, AppError> {
         self.get_gamedev_by_id(new_game.gamedev_id).await?;
         match self.get_game_by_name(new_game.name.clone(), new_game.gamedev_id.clone()).await {
-            Ok(_) => return Err(AppError::DuplicateEntryError),
+            Ok(_) => {
+                error!("Cannot create new game because the name is already in use.");
+                return Err(AppError::DuplicateEntryError)
+            },
             Err(_) => {}
         };
 
@@ -35,23 +39,36 @@ impl Storage {
         };
 
         self.game_collection.insert_one(new_game.clone(), None).await?;
+        debug!("New game created: {:?}", new_game);
 
         self.get_game_by_name(new_game.name, new_game.gamedev_id).await
     }
 
     pub async fn get_game_by_name(&self, name: String, gamedev_id: Uuid) -> Result<Game, AppError> {
-        let filter = doc! { "name": name, "gamedev_id": self.uuid_to_binary(gamedev_id) };
+        let filter = doc! { "name": name.clone(), "gamedev_id": self.uuid_to_binary(gamedev_id) };
         match self.game_collection.find_one(filter, None).await? {
-            Some(game) => Ok(game),
-            None => Err(AppError::NotFound)
+            Some(game) => {
+                debug!("The Game search returned successfully with game: {:?}", game);
+                Ok(game)
+            },
+            None => {
+                error!("Game with name {} not found.", name);
+                Err(AppError::NotFound)
+            }
         }
     }
 
     pub async fn get_game_by_id(&self, id: Uuid, gamedev_id: Uuid) -> Result<Game, AppError> {
         let filter = doc! { "id": self.uuid_to_binary(id), "gamedev_id": self.uuid_to_binary(gamedev_id) };
         match self.game_collection.find_one(filter, None).await? {
-            Some(game) => Ok(game),
-            None => Err(AppError::NotFound)
+            Some(game) => {
+                debug!("The Game search returned successfully with game: {:?}", game);
+                Ok(game)
+            },
+            None => {
+                error!("Game with id {} not found.", id);
+                Err(AppError::NotFound)
+            }
         }
     }
 
