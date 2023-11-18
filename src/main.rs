@@ -11,7 +11,7 @@ use std::env;
 
 use crate::app_data::AppData;
 use crate::config::Config;
-use crate::handlers::utils;
+use crate::handlers::{utils, game};
 
 pub mod app_data;
 pub mod config;
@@ -51,6 +51,9 @@ async fn main() -> std::io::Result<()> {
             .route("/health", web::get().to(utils::health_handler))
             .route("/health/full", web::get().to(utils::full_health_handler))
             .route("/echo", web::post().to(utils::echo_handler))
+            .route("/games", web::post().to(game::create_game_handler))
+            .route("/games/{game_id}", web::get().to(game::get_game_handler))
+            .route("/games", web::get().to(game::get_all_games_handler))
     })
     .bind(("127.0.0.1", config.api_port))?
     .keep_alive(Duration::from_secs(config.timeout))
