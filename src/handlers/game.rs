@@ -67,6 +67,5 @@ pub async fn get_all_games_handler(gamedev: web::Json<GetAllGamesRequest>, data:
     let response = AllGamesResponse {
         games: games.into_iter().map(GameResponse::from).collect(),
     };
-    /* let response = AllGamesResponse { games }; */
     Ok(web::Json(response))
 }
