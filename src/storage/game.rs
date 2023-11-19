@@ -2,7 +2,7 @@ use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use log::{error, debug, info};
+use log::{error, debug};
 
 use crate::error::AppError;
 
