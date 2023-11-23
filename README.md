@@ -2,6 +2,8 @@
 
 [project description]
 
+Hello
+
 ## Project structure
 
 ### Handlers
