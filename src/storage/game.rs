@@ -83,6 +83,7 @@ impl Storage {
             games.push(game)
         }
 
+        debug!("Got {} games", games.len());
         Ok(games)
     }
 }

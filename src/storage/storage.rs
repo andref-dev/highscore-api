@@ -9,7 +9,7 @@ use mongodb::{
 use uuid::Uuid;
 use log::debug;
 
-use crate::error::AppError;
+use crate::{error::AppError, storage::highscore::Highscore};
 
 use super::gamedev::GameDev;
 use super::game::Game;
@@ -20,7 +20,8 @@ pub struct Storage {
     pub client: Client,
     pub db: Database,
     pub gamedev_collection: Collection<GameDev>,
-    pub game_collection: Collection<Game>
+    pub game_collection: Collection<Game>,
+    pub highscore_collection: Collection<Highscore>
 }
 
 impl Storage {
@@ -32,13 +33,15 @@ impl Storage {
         let db = client.database("highscore-api");
         let gamedev_collection = db.collection::<GameDev>("gamedevs");
         let game_collection = db.collection::<Game>("games");
+        let highscore_collection = db.collection::<Highscore>("highscores");
 
         Ok(Self {
             name: "This is a test".to_string(),
             client,
             db,
             gamedev_collection,
-            game_collection
+            game_collection,
+            highscore_collection
         })
     }
 
