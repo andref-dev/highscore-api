@@ -33,7 +33,7 @@ impl Storage {
         let db = client.database("highscore-api");
         let gamedev_collection = db.collection::<GameDev>("gamedevs");
         let game_collection = db.collection::<Game>("games");
-        let highscore_collection = db.collection::<Highscore>("highscore");
+        let highscore_collection = db.collection::<Highscore>("highscores");
 
         Ok(Self {
             name: "This is a test".to_string(),
