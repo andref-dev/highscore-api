@@ -54,6 +54,20 @@ impl Storage {
         }
     }
 
+    pub async fn get_gamedev_by_api_key(&self, api_key: Uuid) -> Result<GameDev, AppError> {
+        let filter = doc! { "api_key": self.uuid_to_binary(api_key) };
+        match self.gamedev_collection.find_one(filter, None).await? {
+            Some(gamedev) => {
+                debug!("The GameDev search returned successfully with gamedev: {:?}.", gamedev);
+                Ok(gamedev)
+            },
+            None => {
+                error!("Gamedev with api_key {} not found.", api_key);
+                Err(AppError::NotFound)
+            }
+        }
+    }
+
     pub async fn get_gamedev_by_name(&self, name: String) -> Result<GameDev, AppError> {
         let filter = doc!{"name": name.clone()};
         match self.gamedev_collection.find_one(filter, None).await? {

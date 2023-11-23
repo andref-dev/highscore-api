@@ -7,7 +7,9 @@ pub enum AppError {
     DuplicateEntryError,
     MongoDbError,
     NotFound,
-    PoisonError
+    PoisonError,
+    MissingApiKey,
+    InvalidApiKey,
 }
 
 impl From<mongodb::error::Error> for AppError {
@@ -28,7 +30,9 @@ impl Display for AppError {
             AppError::DuplicateEntryError => write!(f, "Duplicate Entry Error"),
             AppError::MongoDbError => write!(f, "MongoDb Error"),
             AppError::NotFound => write!(f, "Not Found"),
-            AppError::PoisonError => write!(f, "Poison Error")
+            AppError::PoisonError => write!(f, "Poison Error"),
+            AppError::MissingApiKey => write!(f, "Missing API KEY"),
+            AppError::InvalidApiKey => write!(f, "Invalid API KEY"),
         }
     }
 }
@@ -40,6 +44,8 @@ impl ResponseError for AppError {
             AppError::DuplicateEntryError => HttpResponse::Conflict().into(),
             AppError::MongoDbError => HttpResponse::InternalServerError().into(),
             AppError::PoisonError => HttpResponse::InternalServerError().into(),
+            AppError::MissingApiKey => HttpResponse::Unauthorized().into(),
+            AppError::InvalidApiKey => HttpResponse::Unauthorized().into(),
         }
     }   
 }

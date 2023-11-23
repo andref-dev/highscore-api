@@ -1,10 +1,11 @@
 use std::sync::RwLock;
 
-use actix_web::{Responder, HttpResponse, web::{self, Data}};
+use actix_web::{Responder, HttpResponse, HttpRequest, web::{self, Data}};
 use serde::Serialize;
-use log::info;
+use log::{info, error};
+use uuid::Uuid;
 
-use crate::app_data::AppData;
+use crate::{app_data::AppData, error::AppError, storage::storage::Storage};
 
 #[derive(Serialize)]
 struct HealthResponse {
@@ -46,22 +47,41 @@ pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder 
     web::Json(response)
 }
 
-// REFERENCE FOR FUTURE HANDLER IMPLEMENTATION
-// pub async fn create_entity_handler(data: Data<RwLock<AppData>) -> Result<web::Json<RESPONSE_STRUCT>, AppError> {
-//     let storage = &data.write().unwrap().storage;
-//     let created_entity = storage.CREATE_ENTITY(PARAMETERS).await?;
-
-//     Ok(web::Json(created_entity))
-// }
-
-// pub async fn get_entity_handler(data: Data<RwLock<AppData>) -> Result<web::Json<RESPONSE_STRUCT>, AppError> {
-//     let storage = &data.read().unwrap().storage;
-//     let got_entity = storage.get_entity(ENTITY_ID).await?;
-
-//     Ok(web::Json(got_entity))
-// }
-
 pub async fn echo_handler(req_body: String) -> impl Responder {
     info!("Echo handler executed successfully with data: {}", req_body);
     HttpResponse::Ok().body(req_body)
+}
+
+pub async fn get_gamedev_id_from_request(request: &HttpRequest, storage: &Storage) -> Result<Uuid, AppError> {
+    let auth_header = match request.headers().get("Authorization"){
+        Some(auth) => auth,
+        None => {
+            error!("Missing Authorization header");
+            return Err(AppError::MissingApiKey);
+        }
+    };
+
+    let auth_str = match auth_header.to_str() {
+        Ok(str) => str,
+        Err(_) => {
+            error!("Invalid API KEY, should be string");
+            return Err(AppError::InvalidApiKey)
+        }
+    };
+
+    let api_key = auth_str.trim_start_matches("Bearer ")
+        .trim();
+
+    let api_key = match Uuid::parse_str(api_key) {
+        Ok(key) => key,
+        Err(e) => {
+            error!("Error parsing API Key to Uuid: {}", e);
+            return Err(AppError::InvalidApiKey);
+        }
+    };
+
+    match storage.get_gamedev_by_api_key(api_key).await {
+        Ok(gamedev) => Ok(gamedev.id),
+        Err(_) => Err(AppError::InvalidApiKey)
+    }
 }
