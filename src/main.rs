@@ -36,10 +36,7 @@ async fn main() -> std::io::Result<()> {
                 scripts::refresh_api_key::execute(gamedev_id).await;
                 return Ok(())
             }
-            Err(_) => {
-                eprintln!("Erro: O argumento não é um Uuid válido.");
-                return Ok(());
-            }
+            Err(_) => {}
         }
     }
 
