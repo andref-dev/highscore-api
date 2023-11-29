@@ -47,11 +47,6 @@ pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder 
     web::Json(response)
 }
 
-pub async fn echo_handler(req_body: String) -> impl Responder {
-    debug!("Echo handler executed successfully with data: {}", req_body);
-    HttpResponse::Ok().body(req_body)
-}
-
 pub async fn get_gamedev_id_from_request(request: &HttpRequest, storage: &Storage) -> Result<Uuid, AppError> {
     let auth_header = match request.headers().get("Authorization"){
         Some(auth) => auth,
