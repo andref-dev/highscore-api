@@ -6,8 +6,10 @@ use actix_web::{App, web, HttpServer};
 use env_logger::Env;
 use log::info;
 use config::ReleaseMode;
+use uuid::Uuid;
 use web::Data;
 use std::env;
+
 
 use crate::app_data::AppData;
 use crate::config::Config;
@@ -26,6 +28,19 @@ async fn main() -> std::io::Result<()> {
     if args.len() > 2 && args[1] == "create-gamedev" {
         scripts::create_gamedev::execute(args[2].clone()).await;
         return Ok(())
+    }
+    
+    if args.len() > 2 && args[1] == "refresh-api-key" {
+        match Uuid::parse_str(&args[2]) {
+            Ok(gamedev_id) => {
+                scripts::refresh_api_key::execute(gamedev_id).await;
+                return Ok(())
+            }
+            Err(_) => {
+                println!("GAMEDEV_ID format invalid.");
+                return Ok(());
+            }
+        }
     }
 
     let config = Config::new();

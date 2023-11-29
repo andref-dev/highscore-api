@@ -1,8 +1,7 @@
 use mongodb::bson::doc;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use log::error;
-use log::debug;
+use log::{error, debug};
 
 use crate::error::AppError;
 
@@ -80,5 +79,23 @@ impl Storage {
                 Err(AppError::NotFound)
             }
         }
+    }
+
+    pub async fn refresh_gamedev_api_key(&self, gamedev_id: Uuid) -> Result<GameDev, AppError> {
+        let current_gamedev = self.get_gamedev_by_id(gamedev_id).await?;
+
+        let updated_gamedev = GameDev {
+            id: current_gamedev.id,
+            name: current_gamedev.name.clone(),
+            api_key: Uuid::new_v4(),
+        };
+
+        let query = doc! { "id": self.uuid_to_binary(current_gamedev.id), "name": current_gamedev.name.clone() };
+
+        self.gamedev_collection.replace_one(query, updated_gamedev.clone(), None).await?;
+
+        debug!("The GameDev API_KEY successfully refreshed.");
+
+        self.get_gamedev_by_id(updated_gamedev.id).await
     }
 }
