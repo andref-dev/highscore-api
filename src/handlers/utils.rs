@@ -2,7 +2,7 @@ use std::sync::RwLock;
 
 use actix_web::{Responder, HttpResponse, HttpRequest, web::{self, Data}};
 use serde::Serialize;
-use log::{info, error};
+use log::{debug, error};
 use uuid::Uuid;
 
 use crate::{app_data::AppData, error::AppError, storage::storage::Storage};
@@ -19,7 +19,7 @@ struct FullHealthResponse {
 }
 
 pub async fn health_handler() -> impl Responder {
-    info!("Health handler executed successfully");
+    debug!("Health handler executed successfully");
     let response = HealthResponse {
         status: String::from("pass")
     };
@@ -42,7 +42,7 @@ pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder 
         db: db_status
     };
 
-    info!("Full health handler executed with response: {:?}", response);
+    debug!("Full health handler executed with response: {:?}", response);
 
     web::Json(response)
 }
