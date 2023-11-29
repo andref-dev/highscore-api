@@ -10,7 +10,7 @@ pub async fn execute(gamedev_id: Uuid) {
             println!("Successfully refreshed the gamedev api_key: {}", gamedev.api_key);
         }
         Err(err) => {
-            println!("Error to refresh gamedev: {:?}", err);
+            println!("Error to refresh gamedev api_key: {:?}", err);
         }
     };
 }

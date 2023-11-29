@@ -36,7 +36,10 @@ async fn main() -> std::io::Result<()> {
                 scripts::refresh_api_key::execute(gamedev_id).await;
                 return Ok(())
             }
-            Err(_) => {}
+            Err(_) => {
+                println!("GAMEDEV_ID format invalid.");
+                return Ok(());
+            }
         }
     }
 
