@@ -81,4 +81,20 @@ impl Storage {
             }
         }
     }
+
+    pub async fn update_gamedev(&self, name: String) -> Result<GameDev, AppError> {
+        let current_gamedev = self.get_gamedev_by_name(name.clone()).await?;
+
+        let updated_gamedev = GameDev {
+            id: current_gamedev.id,
+            name: current_gamedev.name.clone(),
+            api_key: Uuid::new_v4(),
+        };
+
+        let query = doc! { "id": self.uuid_to_binary(current_gamedev.id), "name": current_gamedev.name.clone() };
+
+        self.gamedev_collection.replace_one(query, updated_gamedev.clone(), None).await?;
+
+        self.get_gamedev_by_id(updated_gamedev.id).await
+    }
 }

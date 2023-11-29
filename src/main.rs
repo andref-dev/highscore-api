@@ -26,6 +26,9 @@ async fn main() -> std::io::Result<()> {
     if args.len() > 2 && args[1] == "create-gamedev" {
         scripts::create_gamedev::execute(args[2].clone()).await;
         return Ok(())
+    } else if args.len() > 2 && args[1] == "refresh-api-key" {
+        scripts::refresh_api_key::execute(args[2].clone()).await;
+        return Ok(())
     }
 
     let config = Config::new();
