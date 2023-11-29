@@ -82,8 +82,8 @@ impl Storage {
         }
     }
 
-    pub async fn update_gamedev(&self, name: String) -> Result<GameDev, AppError> {
-        let current_gamedev = self.get_gamedev_by_name(name.clone()).await?;
+    pub async fn refresh_gamedev_api_key(&self, gamedev_id: Uuid) -> Result<GameDev, AppError> {
+        let current_gamedev = self.get_gamedev_by_id(gamedev_id).await?;
 
         let updated_gamedev = GameDev {
             id: current_gamedev.id,
