@@ -3,7 +3,7 @@ use std::sync::RwLock;
 use actix_web::{web::{self, Data}, HttpRequest};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use log::info;
+use log::debug;
 
 use crate::{error::AppError, app_data::AppData, storage::highscore::{NewHighscore, Highscore}, handlers::utils::get_gamedev_id_from_request};
 
@@ -45,7 +45,7 @@ pub async fn update_highscore_handler(new_highscore: web::Json<UpdateHighscoreRe
     };
     
     let highscore = storage.update_highscore(highscore.clone()).await?;
-    info!("Update Highscore Handler executed successfully.");
+    debug!("Update Highscore Handler executed successfully.");
     Ok(web::Json(highscore.into()))
 }
 
@@ -56,6 +56,6 @@ pub async fn get_highscores_handler(game_id: web::Path<Uuid>, request: HttpReque
     let response = AllHighscoresResponse {
         highscores: highscores.into_iter().map(HighscoreResponse::from).collect(),
     };
-    info!("Get Highscores Handler executed successfully.");
+    debug!("Get Highscores Handler executed successfully.");
     Ok(web::Json(response))
 }
