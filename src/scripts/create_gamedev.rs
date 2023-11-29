@@ -1,6 +1,5 @@
 use crate::Config;
 use crate::storage::storage::Storage;
-use log::debug;
 
 pub async fn execute(name: String) {
     let config = Config::new();
