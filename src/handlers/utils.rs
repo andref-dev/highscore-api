@@ -1,6 +1,6 @@
 use std::sync::RwLock;
 
-use actix_web::{Responder, HttpResponse, HttpRequest, web::{self, Data}};
+use actix_web::{Responder, HttpRequest, web::{self, Data}};
 use serde::Serialize;
 use log::{debug, error};
 use uuid::Uuid;
