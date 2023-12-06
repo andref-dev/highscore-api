@@ -1,8 +1,11 @@
+use std::time::SystemTime;
+
 use crate::{storage::storage::Storage, config::Config};
 
 
 pub struct AppData {
     pub storage: Storage,
+    pub start_time: SystemTime,
 }
 
 impl AppData {
@@ -11,8 +14,10 @@ impl AppData {
             .await
             .expect("Error instantiacing storage for AppData");
 
+        let start_time = SystemTime::now();
         Self {
-            storage
+            storage,
+            start_time
         }
     }
 }

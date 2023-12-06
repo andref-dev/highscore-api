@@ -1,7 +1,7 @@
-use std::sync::RwLock;
+use std::{sync::RwLock, time::SystemTime};
 
 use actix_web::{Responder, HttpRequest, web::{self, Data}};
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 use log::{debug, error};
 use uuid::Uuid;
 
@@ -13,9 +13,20 @@ struct HealthResponse {
 }
 
 #[derive(Serialize, Debug)]
-struct FullHealthResponse {
+pub struct FullHealthResponse {
     status: String,
+    #[serde(serialize_with = "serialize_with_two_decimals")]
+    uptime: f64,
     db: bool
+}
+
+fn serialize_with_two_decimals<S>(x: &f64, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let factor = 100.0; // Change this for different decimal places
+    let rounded = (x * factor).round() / factor;
+    s.serialize_f64(rounded)
 }
 
 pub async fn health_handler() -> impl Responder {
@@ -27,7 +38,7 @@ pub async fn health_handler() -> impl Responder {
 }
 
 // Receive an AppData object
-pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder {
+pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> Result<web::Json<FullHealthResponse>, AppError> {
     let storage = &data.read().unwrap().storage;
     let db_status = storage.health_check().await;
 
@@ -37,14 +48,16 @@ pub async fn full_health_handler(data: Data<RwLock<AppData>>) -> impl Responder 
         false => "fail"
     }.to_string();
 
+    let uptime = SystemTime::now().duration_since(data.read().unwrap().start_time)?.as_secs_f64();
     let response = FullHealthResponse {
         status,
-        db: db_status
+        uptime,
+        db: db_status,
     };
 
     debug!("Full health handler executed with response: {:?}", response);
 
-    web::Json(response)
+    Ok(web::Json(response))
 }
 
 pub async fn get_gamedev_id_from_request(request: &HttpRequest, storage: &Storage) -> Result<Uuid, AppError> {

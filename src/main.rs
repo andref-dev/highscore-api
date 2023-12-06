@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use actix_web::{App, web, HttpServer};
 use env_logger::Env;
-use log::info;
+use log::{info, error as log_error};
 use config::ReleaseMode;
 use uuid::Uuid;
 use web::Data;
@@ -24,6 +24,15 @@ mod storage;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let config = Config::new();
+    let default_level = match config.release_mode {
+        ReleaseMode::Dev => "debug",
+        ReleaseMode::Prod => "info"
+    };
+
+    let env = Env::default().default_filter_or(default_level);
+    env_logger::init_from_env(env);
+
     let args: Vec<String> = env::args().collect();
     if args.len() > 2 && args[1] == "create-gamedev" {
         scripts::create_gamedev::execute(args[2].clone()).await;
@@ -37,22 +46,12 @@ async fn main() -> std::io::Result<()> {
                 return Ok(())
             }
             Err(_) => {
-                println!("GAMEDEV_ID format invalid.");
+                log_error!("GAMEDEV_ID format invalid.");
                 return Ok(());
             }
         }
     }
 
-    let config = Config::new();
-
-    let default_level = match config.release_mode {
-        ReleaseMode::Dev => "debug",
-        ReleaseMode::Prod => "info"
-    };
-
-    let env = Env::default().default_filter_or(default_level);
-    env_logger::init_from_env(env);
-    
     let startup_message = format!("Server is running on http://localhost:{}", config.api_port);
     info!("{}", startup_message);
 
