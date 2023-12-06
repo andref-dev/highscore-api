@@ -1,4 +1,4 @@
-use std::{fmt::Display, sync::PoisonError};
+use std::{fmt::Display, sync::PoisonError, time::SystemTimeError};
 
 use actix_web::{ResponseError, HttpResponse};
 
@@ -8,6 +8,7 @@ pub enum AppError {
     MongoDbError,
     NotFound,
     PoisonError,
+    UptimeError,
     MissingApiKey,
     InvalidApiKey,
 }
@@ -24,6 +25,12 @@ impl<T> From<PoisonError<T>> for AppError {
     }
 }
 
+impl From<SystemTimeError> for AppError {
+    fn from(_: SystemTimeError) -> Self {
+        Self::UptimeError
+    }
+}
+
 impl Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -33,6 +40,7 @@ impl Display for AppError {
             AppError::PoisonError => write!(f, "Poison Error"),
             AppError::MissingApiKey => write!(f, "Missing API KEY"),
             AppError::InvalidApiKey => write!(f, "Invalid API KEY"),
+            AppError::UptimeError => write!(f, "Uptime Error"),
         }
     }
 }
@@ -46,6 +54,7 @@ impl ResponseError for AppError {
             AppError::PoisonError => HttpResponse::InternalServerError().into(),
             AppError::MissingApiKey => HttpResponse::Unauthorized().into(),
             AppError::InvalidApiKey => HttpResponse::Unauthorized().into(),
+            AppError::UptimeError => HttpResponse::InternalServerError().into(),
         }
     }   
 }
